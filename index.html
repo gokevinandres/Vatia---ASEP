@@ -501,6 +501,12 @@ document.addEventListener('DOMContentLoaded', function () {
     menu.classList.add('show');
   }
 
+  // Al volver desde un módulo (index.html?volver) se salta la intro
+  if (location.search.indexOf('volver') !== -1) {
+    mostrarMenu();
+    return;
+  }
+
   // Si VatiaIntro no está disponible (script no cargó), muestra el menú directo
   if (!window.VatiaIntro) {
     console.warn('[VATIA] vatia_intro.js no cargó — menú directo');
