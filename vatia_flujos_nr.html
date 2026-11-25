@@ -55,7 +55,7 @@ footer{background:var(--pd);height:32px;display:flex;align-items:center;border-l
 <div class="card"><div class="gr"><small>Archivo</small><div><button onclick="csv()">Exportar</button></div></div>
  <div class="gr"><small>Cálculo</small><div id="cb"></div></div>
  <div class="gr"><small>Vista</small><div><button style="background:var(--in)" onclick="big()">Diagrama Unifilar</button><button style="background:var(--ac)" onclick="conv()">Convergencia</button></div></div>
- <div class="gr" style="margin-left:auto;margin-right:0"><small>Soporte</small><div><button class="sf" style="color:var(--ac)" onclick="help()">Ayuda (F1)</button></div></div></div>
+ </div>
 <footer><span id="dot">●</span><span id="stt">Listo.</span><span style="margin-left:auto" class="l"></span><span style="font-size:8px;font-weight:700;color:var(--tl)">PROGRESO</span><div id="bar"><i></i></div><span style="font:8px Consolas,monospace;color:var(--tll);margin-left:14px">v1.0  ·  Vatia</span></footer>
 <script>
 const $=s=>document.querySelector(s),F=(v,d=0)=>{v=parseFloat(String(v).replace(',','.'));return isNaN(v)?d:v};
@@ -222,4 +222,116 @@ document.addEventListener('input',e=>{if(e.target.closest('#nb')){e.target.class
 document.addEventListener('keydown',e=>{if(e.key=='F1'){e.preventDefault();help()}});
 window.addEventListener('resize',prev);
 tabs();build();
+
+/* ============================================================
+   TEORÍA — Flujos de Potencia Newton-Raphson
+   ============================================================ */
+function theory(){
+  modal(mh('?', 'TEORÍA', 'Flujos de potencia — Newton-Raphson') + `
+  <div class="mb" style="font:13px Consolas,monospace;line-height:1.85;padding:18px 28px">
+
+    <div class="sc">1. ECUACIONES DE POTENCIA NODAL</div>
+    Cada nodo tiene dos ecuaciones (P y Q) en función de V y θ:
+    <div style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #0E7490;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      P_i = V_i · Σ_j V_j (G_ij·cos θ_ij + B_ij·sin θ_ij)<br>
+      Q_i = V_i · Σ_j V_j (G_ij·sin θ_ij − B_ij·cos θ_ij)<br>
+      con θ_ij = θ_i − θ_j
+    </div>
+
+    <div class="sc">2. CLASIFICACIÓN DE NODOS</div>
+    <div style="margin:8px 0;padding:8px 14px;background:#D1FAE5;border-left:4px solid #047857">
+      <b>Slack (barra infinita)</b><br>
+      V y θ conocidos → P y Q se calculan
+    </div>
+    <div style="margin:8px 0;padding:8px 14px;background:#EDE9FE;border-left:4px solid #6D28D9">
+      <b>PV (generador)</b><br>
+      P y |V| conocidos → Q y θ se calculan
+    </div>
+    <div style="margin:8px 0;padding:8px 14px;background:#FFEDD5;border-left:4px solid #C2410C">
+      <b>PQ (carga)</b><br>
+      P y Q conocidos → |V| y θ se calculan
+    </div>
+
+    <div class="sc">3. MISMATCH (desbalance)</div>
+    <div style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #0E7490;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      ΔP_i = P_esp,i − P_calc,i    (nodos PQ y PV)<br>
+      ΔQ_i = Q_esp,i − Q_calc,i    (solo PQ)
+    </div>
+
+    <div class="sc">4. MATRIZ JACOBIANA</div>
+    <div style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #0E7490;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      [ ΔP ]   [ H  N ]   [ Δθ ]<br>
+      [ ΔQ ] = [ M  L ] · [ ΔV ]<br><br>
+      H_ii = −Q_i − B_ii·V_i²<br>
+      H_ij = V_i·V_j·(G_ij·sin θ_ij − B_ij·cos θ_ij)<br>
+      N_ii = P_i/V_i + G_ii·V_i<br>
+      N_ij = V_i·(G_ij·cos θ_ij + B_ij·sin θ_ij)<br>
+      M_ii = P_i − G_ii·V_i²<br>
+      M_ij = −V_i·V_j·(G_ij·cos θ_ij + B_ij·sin θ_ij)<br>
+      L_ii = Q_i/V_i − B_ii·V_i<br>
+      L_ij = V_i·(G_ij·sin θ_ij − B_ij·cos θ_ij)
+    </div>
+
+    <div class="sc">5. LOS 7 PASOS DEL MÉTODO</div>
+    <ol style="padding-left:26px;line-height:1.9">
+      <li><b>Inicialización</b>: V=1.0 p.u., θ=0 rad (flat start). Construir Ybus.</li>
+      <li><b>Calcular P_calc, Q_calc</b> con las ecuaciones del punto 1.</li>
+      <li><b>Calcular mismatch</b> ΔP y ΔQ.</li>
+      <li><b>Verificar convergencia</b>: si max|ΔP|, max|ΔQ| &lt; ε (1e-3 p.u.), terminar.</li>
+      <li><b>Construir Jacobiano</b> J(V, θ).</li>
+      <li><b>Resolver</b> J·Δx = mismatch → Δx = J⁻¹·mismatch.</li>
+      <li><b>Actualizar</b> θ_i += Δθ_i ; V_i += ΔV_i. Volver al paso 2.</li>
+    </ol>
+
+    <div class="sc">6. CONVERGENCIA CUADRÁTICA</div>
+    El error se reduce al cuadrado en cada iteración:
+    <div style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #0E7490;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Si error_k = ε, entonces error_{k+1} ≈ ε²<br>
+      Con 3–5 iteraciones se alcanza precisión de 4–6 cifras
+    </div>
+
+    <div class="sc">7. YBUS</div>
+    Se construye sumando las admitancias serie de cada línea:
+    <div style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #0E7490;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Y_ii = Σ y_km + y_shunt,ii<br>
+      Y_ik = −y_ik<br>
+      con y_km = G_km + j·B_km
+    </div>
+
+    <div class="sc">8. BASES Y CONVERSIÓN</div>
+    <div style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #0E7490;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Z_base = V_base² / S_base   [Ω]<br>
+      P_real (MW) = P_pu · S_base<br>
+      V_real (kV) = V_pu · V_base
+    </div>
+
+    <div class="sc">9. CRITERIO DE PARADA</div>
+    El proceso itera hasta que el máximo desbalance esté por debajo de la tolerancia:
+    <div style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #0E7490;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      max(|ΔP_i|, |ΔQ_i|) &lt; ε<br>
+      ε típico = 1e-3 p.u.
+    </div>
+
+    <div class="sc">10. ATAJOS DE TECLADO</div>
+    <ul style="padding-left:26px;line-height:1.9">
+      <li><b>F5</b> — ejecutar iteración 0</li>
+      <li><b>F1</b> — abrir esta ventana de teoría</li>
+      <li><b>Ctrl + rueda</b> — zoom en el diagrama unifilar</li>
+    </ul>
+
+  </div>`);
+}
+
+/* ============================================================
+   ALIAS — para que el botón "Ayuda (F1)" también abra la teoría
+   ============================================================ */
+function help(){ theory(); }
+
+/* Atajo F1 */
+document.addEventListener('keydown', e => {
+  if (e.key === 'F1') { e.preventDefault(); theory(); }
+});
+
+
+
 </script></body></html>

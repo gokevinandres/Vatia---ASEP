@@ -1,22 +1,559 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<title>Vatia — Simulador de Sistemas de Potencia</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vatia — Suite de Análisis de Sistemas de Potencia</title>
 <style>
-body{font-family:Segoe UI,system-ui,sans-serif;background:#EDF1F6;margin:0;
-     display:flex;flex-direction:column;align-items:center;justify-content:center;
-     min-height:100vh;color:#1F2937}
-h1{color:#152741;border-bottom:3px solid #0E7490;padding-bottom:10px}
-a{display:block;background:#fff;border:1px solid #CBD5E1;border-left:5px solid #0E7490;
-  padding:16px 24px;margin:10px;width:340px;text-decoration:none;color:#1E3A5F;
-  font-weight:700;transition:.15s}
-a:hover{background:#0E7490;color:#fff;transform:translateX(4px)}
-small{color:#4B5563;font-weight:400;display:block;margin-top:4px;font-size:12px}
+:root{
+  --bg:#EDF1F6; --panel:#FFFFFF; --surface:#F7F9FC;
+  --primary:#1E3A5F; --primary-l:#2C5282; --primary-d:#152741;
+  --accent:#0E7490; --accent-l:#0891B2;
+  --text:#1F2937; --text-l:#4B5563; --text-ll:#94A3B8;
+  --border:#CBD5E1;
+  --slack:#047857; --pv:#6D28D9; --pq:#C2410C;
+  --inactive:#94A3B8; --inactive-bg:#F1F5F9;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+     font:14px "Segoe UI",system-ui,sans-serif;
+     min-height:100vh;display:flex;flex-direction:column}
+
+header{background:var(--primary-d);height:130px;
+       position:relative;display:flex;align-items:center;justify-content:center;
+       border-top:4px solid var(--accent)}
+#hdrLogo{width:440px;height:85px;display:block}
+.hdrRight{position:absolute;right:32px;top:50%;transform:translateY(-50%);
+          text-align:right;color:#CBD5E1;font-size:11px;line-height:1.6}
+.hdrRight b{display:block;font-weight:400;font-style:italic}
+.hdrRight span{font-size:9px;color:#94A3B8;letter-spacing:1px}
+
+.subtitle{text-align:center;padding:32px 20px 12px}
+.subtitle h2{margin:0;font-size:20px;color:var(--text)}
+.subtitle p{margin:6px 0 0;font-size:11px;font-style:italic;color:var(--text-l)}
+
+.cards{flex:1;display:grid;grid-template-columns:repeat(3,1fr);
+       gap:20px;padding:20px 50px;max-width:1400px;
+       width:100%;margin:0 auto;align-items:stretch}
+
+.card{background:var(--panel);border:2px solid var(--border);
+      display:flex;flex-direction:column;
+      transition:border-color .2s, box-shadow .2s;
+      box-shadow:4px 4px 0 #D5DCE3}
+.card.active{border-color:var(--cardColor,var(--accent))}
+.card.active:hover{border-color:var(--primary);
+                   box-shadow:4px 4px 0 #D5DCE3, 0 6px 20px #0002}
+.card::before{content:'';display:block;height:6px;
+              background:var(--cardColor,var(--accent))}
+
+.card canvas{display:block;margin:24px auto 10px;width:120px;height:120px}
+
+.card h3{margin:0;text-align:center;font-size:15px;color:var(--text)}
+.card .subtitle-c{margin:2px 0 10px;text-align:center;
+                  font-size:10px;font-style:italic;color:var(--text-l)}
+
+.badge-c{display:flex;justify-content:center}
+.badge-c span{background:var(--cardColor,var(--accent));color:#fff;
+              font-size:8px;font-weight:700;padding:4px 14px;
+              letter-spacing:1px}
+
+.card .desc{margin:14px 20px 16px;text-align:center;
+            font-size:10px;line-height:1.6;color:var(--text-l);
+            flex:0 0 auto}
+
+.card .btn-main,.card .btn-theory{
+  margin:0 30px 8px;padding:11px 20px;border:0;
+  font:700 11px inherit;cursor:pointer;text-align:center;
+  transition:background .15s}
+.card .btn-main{background:var(--cardColor,var(--accent));color:#fff}
+.card .btn-main:hover{background:var(--primary-l)}
+.card .btn-theory{background:var(--panel);
+                  color:var(--cardColor,var(--accent));
+                  border:1px solid var(--cardColor,var(--accent));
+                  margin-bottom:24px}
+.card .btn-theory:hover{background:var(--bg)}
+
+footer{background:var(--primary-d);color:#CBD5E1;
+       text-align:center;padding:10px;font-size:9px;letter-spacing:.5px}
+
+/* Entrada de las tarjetas en cascada cuando el menú se muestra */
+#menu.hidden{opacity:0;transform:translateY(12px);
+             transition:opacity .7s ease, transform .7s ease;
+             pointer-events:none}
+#menu.show{opacity:1;transform:none;transition:opacity .7s, transform .7s;
+           pointer-events:auto}
+#menu.show .card:nth-child(1){animation:cardIn .4s ease .05s both}
+#menu.show .card:nth-child(2){animation:cardIn .4s ease .15s both}
+#menu.show .card:nth-child(3){animation:cardIn .4s ease .25s both}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}
+                  to{opacity:1;transform:none}}
+
+@media(max-width:1000px){
+  .cards{grid-template-columns:1fr;padding:20px}
+}
 </style></head><body>
-<h1>⚡ Vatia — Simulador de Sistemas de Potencia</h1>
-<a href="vatia_despacho.html">💰 Despacho Económico
-  <small>Merit order · Congestión · Precios nodales</small></a>
-<a href="vatia_fallas.html">⚡ Análisis de Fallas
-  <small>Componentes simétricas · SLG · LL · LLG · LLL</small></a>
-<a href="vatia_flujos_nr.html">🔌 Flujos de Potencia
-  <small>Newton-Raphson</small></a>
+
+<div id="menu" class="hidden">
+  <header>
+    <canvas id="hdrLogo" width="440" height="85"></canvas>
+    <div class="hdrRight">
+      <b>por Kevin</b>
+      <span>v1.0  ·  2026</span>
+    </div>
+  </header>
+
+  <div class="subtitle">
+    <h2>Seleccione un módulo para comenzar</h2>
+    <p>Suite integral de análisis para sistemas eléctricos de potencia</p>
+  </div>
+
+  <div class="cards">
+    <div class="card active" style="--cardColor:var(--accent)">
+      <canvas width="120" height="120" data-logo="flujos"></canvas>
+      <h3>Flujos de Potencia</h3>
+      <div class="subtitle-c">Newton-Raphson</div>
+      <div class="badge-c"><span>ACTIVO</span></div>
+      <p class="desc">Análisis de flujo de carga iterativo. Cálculo de tensiones
+        nodales, potencias y pérdidas con documentación paso a paso de cada iteración.</p>
+      <button class="btn-main" onclick="location.href='vatia_flujos_nr.html'">Abrir módulo</button>
+    </div>
+
+    <div class="card active" style="--cardColor:var(--pq)">
+      <canvas width="120" height="120" data-logo="fallas"></canvas>
+      <h3>Análisis de Fallas</h3>
+      <div class="subtitle-c">Componentes simétricas</div>
+      <div class="badge-c"><span>ACTIVO</span></div>
+      <p class="desc">Cálculo de corrientes de falla trifásica, monofásica y
+        bifásica. Impedancias de Thévenin, reconstrucción abc y aportes por generador.</p>
+      <button class="btn-main" onclick="location.href='vatia_fallas.html'">Abrir módulo</button>
+    </div>
+
+    <div class="card active" style="--cardColor:var(--pv)">
+      <canvas width="120" height="120" data-logo="despacho"></canvas>
+      <h3>Despacho Económico</h3>
+      <div class="subtitle-c">Optimización + congestión</div>
+      <div class="badge-c"><span>ACTIVO</span></div>
+      <p class="desc">Despacho económico con análisis de congestión,
+        redespacho óptimo y precios marginales nodales.</p>
+      <button class="btn-main" onclick="location.href='vatia_despacho.html'">Abrir módulo</button>
+    </div>
+  </div>
+
+  <footer>© 2026 Vatia · Suite académica de Sistemas de Potencia · por Kevin</footer>
+</div>
+
+<script>
+/* ============================================================
+   TODO EL JS EN UN SOLO DOMContentLoaded
+   — así nos aseguramos que el DOM ya exista antes de correr
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ---------- Utilidades de color ---------- */
+  const hex2rgb = h => {
+    h = h.replace('#', '');
+    return [parseInt(h.substr(0,2),16),
+            parseInt(h.substr(2,2),16),
+            parseInt(h.substr(4,2),16)];
+  };
+  const rgb2hex = (r,g,b) =>
+    '#' + [r,g,b].map(v => Math.round(v).toString(16).padStart(2,'0')).join('');
+  const interpColor = (a,b,t) => {
+    const A = hex2rgb(a), B = hex2rgb(b);
+    return rgb2hex(
+      A[0] + (B[0]-A[0])*t,
+      A[1] + (B[1]-A[1])*t,
+      A[2] + (B[2]-A[2])*t
+    );
+  };
+
+  const C = {
+    primary:'#1E3A5F', primaryD:'#152741', accent:'#0E7490',
+    slack:'#047857', pv:'#6D28D9', pq:'#C2410C'
+  };
+
+  /* ============================================================
+     A) LOGO DEL HEADER (port de _animate_dash_logo de Python)
+     ============================================================ */
+  const hdr = document.getElementById('hdrLogo');
+  if (hdr) {
+    const dpr  = window.devicePixelRatio || 1;
+    hdr.width  = 440 * dpr;
+    hdr.height = 85  * dpr;
+    const hctx = hdr.getContext('2d');
+    hctx.scale(dpr, dpr);
+
+    const CX = 45, CY = 42, SIZE = 78;
+    let phase         = 0;
+    let particles     = [];
+    let counter       = 0;
+    let nodePositions = [];
+
+    function drawHdrLogo(t) {
+      const vBright = 0.35 + 0.65 * Math.abs(Math.sin(t * 2 * Math.PI));
+      const vColor  = interpColor('#0E7490', '#FFFFFF', vBright);
+
+      hctx.clearRect(0, 0, 440, 85);
+
+      const r      = SIZE / 2;
+      const lwMain = Math.max(2, Math.floor(SIZE / 14));
+      const lwThin = Math.max(1, Math.floor(SIZE / 26));
+
+      // 1) hexágono
+      hctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = 2 * Math.PI * i / 6 - Math.PI / 2;
+        const x = CX + r * Math.cos(a);
+        const y = CY + r * Math.sin(a);
+        i === 0 ? hctx.moveTo(x, y) : hctx.lineTo(x, y);
+      }
+      hctx.closePath();
+      hctx.fillStyle = '#152741';
+      hctx.fill();
+
+      // 2) 6 nodos
+      const tipos = [C.slack, C.pv, C.pq, C.pq, C.pv, C.slack];
+      const nodoR = SIZE * 0.065;
+      nodePositions = [];
+      for (let i = 0; i < 6; i++) {
+        const a  = 2 * Math.PI * i / 6 - Math.PI / 2;
+        const nx = CX + r * 0.88 * Math.cos(a);
+        const ny = CY + r * 0.88 * Math.sin(a);
+        nodePositions.push({x:nx, y:ny});
+
+        hctx.beginPath();
+        hctx.moveTo(CX, CY);
+        hctx.lineTo(nx, ny);
+        hctx.strokeStyle = C.accent;
+        hctx.lineWidth   = lwThin;
+        hctx.stroke();
+
+        const pNode = (t + i * 0.15) % 1.0;
+        const pulse = 0.4 + 0.6 * Math.abs(Math.sin(pNode * 2 * Math.PI));
+        const haloR = nodoR * (1.2 + 0.5 * pulse);
+
+        hctx.beginPath();
+        hctx.arc(nx, ny, haloR, 0, 7);
+        hctx.fillStyle = C.accent;
+        hctx.fill();
+
+        hctx.beginPath();
+        hctx.arc(nx, ny, nodoR, 0, 7);
+        hctx.fillStyle   = tipos[i];
+        hctx.fill();
+        hctx.strokeStyle = '#FFFFFF';
+        hctx.lineWidth   = Math.max(1, Math.floor(SIZE / 40));
+        hctx.stroke();
+      }
+
+      // 3) V con brillo
+      const vH = r * 1.1, vW = r * 0.6;
+      hctx.beginPath();
+      hctx.moveTo(CX - vW, CY - vH / 2);
+      hctx.lineTo(CX,      CY + vH / 2);
+      hctx.lineTo(CX + vW, CY - vH / 2);
+      hctx.lineCap  = 'round';
+      hctx.lineJoin = 'round';
+
+      hctx.lineWidth   = lwMain + 6;
+      hctx.strokeStyle = '#0A1420';
+      hctx.stroke();
+
+      hctx.lineWidth   = lwMain + 2;
+      hctx.strokeStyle = vColor;
+      hctx.stroke();
+
+      // 4) texto
+      hctx.font         = '700 22px "Segoe UI", system-ui, sans-serif';
+      hctx.fillStyle    = '#FFFFFF';
+      hctx.textBaseline = 'middle';
+      hctx.textAlign    = 'left';
+      hctx.fillText('V A T I A', CX + 55, CY - 8);
+
+      hctx.font      = 'italic 8px "Segoe UI", system-ui, sans-serif';
+      hctx.fillStyle = '#CBD5E1';
+      hctx.fillText('Suite Profesional de Análisis de Sistemas de Potencia',
+                    CX + 57, CY + 15);
+
+      // 5) partículas
+      counter++;
+      if (counter % 8 === 0 && particles.length <= 12) {
+        const idx = Math.floor(Math.random() * 6);
+        const p   = nodePositions[idx];
+        particles.push({x:p.x, y:p.y, tx:CX, ty:CY,
+                        progress:0, speed:0.04 + Math.random()*0.02});
+      }
+      particles = particles.filter(p => {
+        p.progress += p.speed;
+        if (p.progress >= 1) return false;
+        const x   = p.x + (p.tx - p.x) * p.progress;
+        const y   = p.y + (p.ty - p.y) * p.progress;
+        const rad = 3 - 2 * p.progress;
+        const brt = 0.5 + 0.5 * p.progress;
+        const col = interpColor('#0E7490', '#FFFFFF', brt);
+        hctx.beginPath();
+        hctx.arc(x, y, Math.max(0.1, rad), 0, 7);
+        hctx.fillStyle = col;
+        hctx.fill();
+        return true;
+      });
+    }
+
+    let lastT = performance.now();
+    function loopHdr(now) {
+      if (now - lastT >= 40) {
+        phase = (phase + 0.025) % 1.0;
+        drawHdrLogo(phase);
+        lastT = now;
+      }
+      requestAnimationFrame(loopHdr);
+    }
+    setTimeout(() => requestAnimationFrame(loopHdr), 150);
+  }
+
+  /* ============================================================
+     B) LOGOS DE LAS 3 TARJETAS (port de _dibujar_logo_* de Python)
+     ============================================================ */
+  function logoFlujos(ctx, cx, cy, size, color, phase) {
+    ctx.clearRect(0, 0, size + 20, size + 20);
+    const r = size / 2;
+
+    // hexágono
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = Math.PI * i / 3 - Math.PI / 2;
+      const x = cx + r * Math.cos(a);
+      const y = cy + r * Math.sin(a);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // 4 nodos orbitando
+    const colores = [C.slack, C.pv, C.pq, C.slack];
+    for (let i = 0; i < 4; i++) {
+      const a     = 2 * Math.PI * i / 4 - Math.PI / 2;
+      const radio = r * 0.7 + 3 * Math.sin(phase * 2 * Math.PI + i * 1.2);
+      const nx    = cx + radio * Math.cos(a);
+      const ny    = cy + radio * Math.sin(a);
+
+      const pulse = 0.5 + 0.5 * Math.abs(Math.sin(phase * 2 * Math.PI + i * 0.5));
+      const haloR = 10 + 4 * pulse;
+
+      ctx.beginPath();
+      ctx.arc(nx, ny, haloR, 0, 7);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth   = 1.5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(nx, ny);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth   = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(nx, ny, 5, 0, 7);
+      ctx.fillStyle = colores[i];
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth   = 2;
+      ctx.stroke();
+    }
+
+    // V central
+    const brillo = 0.6 + 0.4 * Math.abs(Math.sin(phase * 2 * Math.PI));
+    const vH = r * 1.0, vW = r * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - vW, cy - vH / 2);
+    ctx.lineTo(cx,      cy + vH / 2);
+    ctx.lineTo(cx + vW, cy - vH / 2);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth   = 4 + 2 * brillo;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    ctx.stroke();
+  }
+
+  function logoFallas(ctx, cx, cy, size, color, phase) {
+    ctx.clearRect(0, 0, size + 20, size + 20);
+    const r = size / 2;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 7);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // rayo
+    const pts = [
+      [cx + r*0.15, cy - r*0.75],
+      [cx - r*0.35, cy + r*0.05],
+      [cx - r*0.05, cy + r*0.05],
+      [cx - r*0.15, cy + r*0.75],
+      [cx + r*0.35, cy - r*0.05],
+      [cx + r*0.05, cy - r*0.05],
+    ];
+    ctx.beginPath();
+    pts.forEach(([x,y], i) => i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+    ctx.closePath();
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+
+    // destellos
+    for (let k = 0; k < 4; k++) {
+      const a   = phase * 2 * Math.PI + k * Math.PI / 2;
+      const dx  = r * 0.75 * Math.cos(a);
+      const dy  = r * 0.75 * Math.sin(a);
+      const dr  = 3 + 3 * Math.abs(Math.sin(phase * 4 * Math.PI + k));
+      ctx.beginPath();
+      ctx.arc(cx + dx, cy + dy, dr, 0, 7);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+    }
+  }
+
+  function logoDespacho(ctx, cx, cy, size, color, phase) {
+    ctx.clearRect(0, 0, size + 20, size + 20);
+    const r = size / 2;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 7);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // 3 barras pulsantes
+    const barW = r * 0.18;
+    const alturasBase = [0.5, 0.75, 0.95];
+    for (let i = 0; i < 3; i++) {
+      const faseBarra = (phase + i * 0.15) % 1.0;
+      const pulso     = 0.85 + 0.15 * Math.sin(faseBarra * 2 * Math.PI);
+      const h         = r * alturasBase[i] * pulso;
+      const x0        = cx - r*0.65 + i * (barW + r*0.1);
+      const y0        = cy + r*0.5;
+      ctx.fillStyle   = '#fff';
+      ctx.fillRect(x0, y0 - h, barW, h);
+    }
+
+    // base
+    ctx.beginPath();
+    ctx.moveTo(cx - r*0.75, cy + r*0.5);
+    ctx.lineTo(cx + r*0.75, cy + r*0.5);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+
+    // flecha
+    const offset = 3 * Math.sin(phase * 2 * Math.PI);
+    ctx.beginPath();
+    ctx.moveTo(cx + r*0.4, cy - r*0.6 + offset);
+    ctx.lineTo(cx + r*0.7, cy - r*0.75 + offset);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx + r*0.75, cy - r*0.78 + offset);
+    ctx.lineTo(cx + r*0.62, cy - r*0.65 + offset);
+    ctx.lineTo(cx + r*0.75, cy - r*0.60 + offset);
+    ctx.closePath();
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+
+  const LOGOS = { flujos: logoFlujos, fallas: logoFallas, despacho: logoDespacho };
+  const COLORS = { flujos: C.accent, fallas: C.pq, despacho: C.pv };
+
+  const cards = [...document.querySelectorAll('[data-logo]')].map(cv => {
+    const dpr = window.devicePixelRatio || 1;
+    const size = 110;
+    cv.width  = size * dpr * 2;
+    cv.height = size * dpr * 2;
+    cv.style.width  = size + 'px';
+    cv.style.height = size + 'px';
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr * 2, dpr * 2);
+    return {
+      ctx,
+      fn:    LOGOS[cv.dataset.logo],
+      color: COLORS[cv.dataset.logo],
+      size
+    };
+  });
+
+  let cardPhase = 0;
+  function loopCards() {
+    cardPhase = (cardPhase + 0.012) % 1;
+    for (const c of cards) {
+      c.fn(c.ctx, c.size / 2, c.size / 2, c.size, c.color, cardPhase);
+    }
+    requestAnimationFrame(loopCards);
+  }
+  requestAnimationFrame(loopCards);
+
+    /* ============================================================
+     C) MOSTRAR EL MENÚ — ahora tras la INTRO SPLASH real
+     ============================================================ */
+  const menu = document.getElementById('menu');
+
+  // Helper: revela el menú con la cascada CSS
+  function mostrarMenu() {
+    menu.classList.remove('hidden');
+    menu.classList.add('show');
+  }
+
+  // Si VatiaIntro no está disponible (script no cargó), muestra el menú directo
+  if (!window.VatiaIntro) {
+    console.warn('[VATIA] vatia_intro.js no cargó — menú directo');
+    mostrarMenu();
+    return;
+  }
+
+  // Monta la intro splash REAL
+  VatiaIntro.mount({
+    style:    'nexus',    // 'nexus' | 'pulse' | 'wave' | 'tower'
+    duration: 3000,       // 1.4 s de animación
+    fade:     100,        // 0.35 s de fade-out
+    onDone:   mostrarMenu // ← cuando el intro termina, revela el menú
+  });
+
+  // Red de seguridad: si en 4 s no se llamó onDone, muestra el menú igual
+  setTimeout(mostrarMenu, 4000);
+
+});
+
+/* ============================================================
+   D) MODAL DE TEORÍA
+   ============================================================ */
+function verTeoria(tipo) {
+  const info = {
+    flujos:   { titulo: 'Teoría — Flujos de Potencia (Newton-Raphson)',
+                msg: 'El módulo de flujos incluye una pestaña "Teoría" con los 7 pasos de Newton-Raphson. Abre el módulo para verla completa.' },
+    fallas:   { titulo: 'Teoría — Análisis de Fallas',
+                msg: 'El módulo de fallas incluye un botón "Ayuda (F1)" con las fórmulas de SLG, LL, LLG y LLL.' },
+    despacho: { titulo: 'Teoría — Despacho Económico',
+                msg: 'El módulo de despacho incluye un botón "Teoría" con merit order, flujo DC, ISF, redespacho y precios nodales.' }
+  }[tipo];
+
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:#0008;z-index:9999;' +
+                     'display:flex;align-items:center;justify-content:center';
+  ov.innerHTML = `
+    <div style="background:#fff;width:min(560px,92vw);border-radius:6px;
+                overflow:hidden;box-shadow:0 12px 40px #0006">
+      <div style="background:#152741;color:#fff;padding:14px 20px;
+                  display:flex;align-items:center;border-top:4px solid #0E7490">
+        <b style="flex:1;font-size:14px">${info.titulo}</b>
+        <button style="background:#B91C1C;color:#fff;border:0;
+                       font:700 11px inherit;padding:6px 12px;cursor:pointer"
+                onclick="this.closest('div[style*=fixed]').remove()">✕</button>
+      </div>
+      <div style="padding:24px;font-size:13px;line-height:1.7;color:#1F2937">
+        ${info.msg}
+      </div>
+    </div>`;
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
+</script>
+<script src="vatia_intro.js"></script>
 </body></html>

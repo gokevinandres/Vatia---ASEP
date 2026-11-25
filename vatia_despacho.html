@@ -53,14 +53,14 @@ header{height:90px;justify-content:space-between;padding:0 24px;border-top:4px s
 <div class="card t"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Número de Nodos (N):</span><input id="nN" class="s" value="3"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Número de Generadores:</span><input id="nG" class="s" value="3"><button style="background:var(--pr);margin-left:6px" onclick="build()">  Generar Tablas  </button><button style="background:var(--s);color:var(--pr);margin-left:6px" onclick="location.reload()">  Nuevo  </button></div>
 <main><aside id="side"><h4>PANEL DE CONTROL</h4><div id="sts"></div><div class="pie"><i>por Kevin</i><span>Vatia © 2026</span></div></aside>
 <section id="nb"></section><section id="pv"><h5>VISTA PREVIA DEL SISTEMA</h5><canvas id="cv"></canvas></section></main>
-<div class="card"><div class="gr"><small>Cálculo</small><div><button style="background:var(--pv);margin-left:6px" onclick="calc()">▶  Calcular Despacho</button><button style="background:var(--in);margin-left:6px" onclick="show()">Ver Resultados</button><button style="background:var(--ac);margin-left:6px" onclick="theory()">Teoría</button></div></div><div class="gr"><small>Archivo</small><div><button style="background:var(--pr);margin-left:6px" onclick="csv()">Exportar CSV</button></div></div></div>
+<div class="card"><div class="gr"><small>Cálculo</small><div><button style="background:var(--pv);margin-left:6px" onclick="calc()">▶  Calcular Despacho</button><button style="background:var(--in);margin-left:6px" onclick="show()">Ver Resultados</button></div></div><div class="gr"><small>Archivo</small><div><button style="background:var(--pr);margin-left:6px" onclick="csv()">Exportar CSV</button></div></div></div>
 <footer><span id="dot">●</span><span id="stt">Listo.</span><span style="margin-left:auto;font:8px Consolas,monospace;color:var(--tll)">v1.0  ·  Despacho</span></footer>
 <script>
 const $=s=>document.querySelector(s),F=(v,d=0)=>{v=parseFloat(String(v).replace(',','.'));return isNaN(v)?d:v};
 const P=(s,d=0)=>Math.trunc(F(s,d)),fe=x=>x==null?'—':x.toExponential(3);
 const hdr=(a,b,c)=>`<div class="dh"${c?` style="background:${c}"`:''}><b>${a}</b><i>${b||''}</i></div>`;
 const I=(id,v)=>`<td><input id="${id}" value="${v}">`;
-const SEL=(id,o,v)=>`<td><select id="${id}">${o.map(x=>`<option${x==v?' selected':''}>${x}`).join('')}</select>`;
+const SEL=(id,o,v)=>`<td><select id="${id}">${o.map(x=>`<option${x==v?' selected':''}>${x}</option>`).join('')}</select>`;
 const T=(h,r)=>`<div class="g"><table><tr>${h.map(x=>'<th>'+x).join('')}</tr>${r}</table></div>`;
 function mk(names){$('#nb').innerHTML='<div class="tabs">'+names.map((x,i)=>`<button class="${i?'':'on'}" onclick="sw(${i})">${x}</button>`).join('')+'</div>'+names.map((_,i)=>`<div id="p${i}" class="pan ${i?'':'on'}"></div>`).join('')}
 function sw(k){document.querySelectorAll('#nb>.pan').forEach((p,i)=>p.classList.toggle('on',i==k));document.querySelectorAll('#nb>.tabs>button').forEach((p,i)=>p.classList.toggle('on',i==k))}
@@ -72,7 +72,6 @@ const tb=(h,r)=>`<table><tr>${h.map(x=>'<th>'+x).join('')}</tr>${r.map(q=>'<tr>'
 const K=(a,b,c,col)=>`<div class="k" style="border-color:${col}"><small>${a}</small><b style="color:${col}">${b}</b><i>${c||''}</i></div>`;
 function win(ic,t,sub,kp,tabs){const m=modal(mh(ic,t,sub)+'<div class="mb"><div class="kp">'+kp+'</div><div class="tabs" id="mt">'+tabs.map((q,i)=>`<button class="${i?'':'on'}">${q[0]}</button>`).join('')+'</div><div id="mp" class="d" style="padding:14px">'+tabs[0][1]+'</div></div>');
  m.querySelectorAll('#mt button').forEach((b,i)=>b.onclick=()=>{m.querySelectorAll('#mt button').forEach(x=>x.classList.remove('on'));b.classList.add('on');m.querySelector('#mp').innerHTML=tabs[i][1]})}
-/* red unifilar genérica: nf(i)->{c,r,s,m}  m: G|L|F */
 function net(cv,title,n,ed,nf,leg,big){const x=cv.getContext('2d'),W=cv.width=cv.clientWidth||520,H=cv.height=cv.clientHeight||520,k=big?1.5:1;
  x.fillStyle='#fff';x.fillRect(0,0,W,H);
  const TX=(t,a,b,f,c,al)=>{x.font=f;x.fillStyle=c;x.textAlign=al||'center';x.textBaseline='middle';x.fillText(t,a,b)},O=(a,b,r,f,s,w)=>{x.beginPath();x.arc(a,b,r,0,7);if(f){x.fillStyle=f;x.fill()}if(s){x.strokeStyle=s;x.lineWidth=w;x.stroke()}};
@@ -92,7 +91,6 @@ function net(cv,title,n,ed,nf,leg,big){const x=cv.getContext('2d'),W=cv.width=cv
  if(!big){x.fillStyle='#fff';x.strokeStyle='#CBD5E1';x.lineWidth=1;const h=24+leg.length*13;x.fillRect(12,H-h-12,150,h);x.strokeRect(12,H-h-12,150,h);TX('LEYENDA',87,H-h+2,'700 8px Segoe UI','#4B5563');
   leg.forEach(([c,t],j)=>{O(28,H-h+17+j*13,4,c,'#fff',1);TX(t,38,H-h+17+j*13,'8px Segoe UI','#1F2937','left')})}}
 
-/*ENGINE*/
 function linsolve(A,b){const n=b.length,M=A.map((r,i)=>[...r,b[i]]);
  for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;if(Math.abs(M[p][c])<1e-12)throw Error('singular');[M[c],M[p]]=[M[p],M[c]];
   for(let r=c+1;r<n;r++){const k=M[r][c]/M[c][c];for(let j=c;j<=n;j++)M[r][j]-=k*M[c][j]}}
@@ -144,7 +142,6 @@ function edCalc(n,loads,lines,gens,slack=0){
  const ff=flows(Pf),cf=gens.reduce((a,g,i)=>a+g.mc*Pf[i],0),pr=[...Array(n).keys()].map(k=>precio(k,Pf,ff));
  const cgen=lines.map((_,l)=>gens.map((g,i)=>ISF[l][g.bus]*Pf[i])),cneta=lines.map((_,l)=>[...Array(n).keys()].map(i=>{let inj=-loads[i];gens.forEach((g,q)=>{if(g.bus==i)inj+=Pf[q]});return ISF[l][i]*inj}));
  return{n,loads,lines,gens,PED,fED,cED,Pf,ff,cf,cs:cf-cED,cong,it,conv,pr,ISF,alt,cgen,cneta}}
-/*END*/
 
 let R=null;const N=id=>P($('#'+id).value,0),rows=(n,f)=>[...Array(n).keys()].map(f).join('');
 function build(){const n=N('nN'),ng=N('nG');if(!(n>=2&&n<=30)){alert('Nodos: ingrese un entero entre 2 y 30.');return}if(ng<1){alert('Defina al menos 1 generador.');return}
@@ -177,6 +174,5 @@ function upd(){const n=N('nN')||0;let nl=0,ct=0,ld=0;for(let i=0;i<n;i++){if(P($
  side([['Nodos',n,'var(--ac)'],['Líneas',nl,'var(--in)'],['Generadores',N('nG'),'var(--pv)'],'-',['Demanda total',ld.toFixed(1)+' MW','var(--pq)'],['Capacidad total',ct.toFixed(1)+' MW','var(--sl)'],'-',['Estado',R?(R.cong.length?'CON CONGESTIÓN':'ÓPTIMO'):'SIN CALCULAR',R?(R.cong.length?'var(--am)':'var(--sl)'):'var(--tl)']]);prev()}
 function csv(){if(!R){alert('Calcula primero el despacho.');return}let s='Gen;Nodo;Cap;MC;P_ED;P_final\n';R.gens.forEach((g,i)=>s+=[i+1,g.bus+1,g.cap,g.mc,R.PED[i],R.Pf[i]].join(';')+'\n');s+='\nNodo;Precio\n';R.pr.forEach((p,i)=>s+=`${i+1};${p}\n`);
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv'}));a.download='Despacho.csv';a.click()}
-function theory(){modal(mh('?','TEORÍA','Despacho económico DC con congestión')+`<div class="mb" style="font:13px Consolas,monospace;line-height:1.9"><div class="sc">1. Merit order</div>Se despacha por costo marginal ascendente hasta cubrir la demanda total.<div class="sc">2. Flujo DC e ISF</div>θ = B_red⁻¹ · P_inyectada ; F_ℓ = (θ_a − θ_b)/x_ℓ ; ISF_ℓ,i = (X_a,i − X_b,i)/x_ℓ<div class="sc">3. Redespacho</div>Si |F_ℓ| > cap, se elige el par (sube u, baja d) de menor costo que alivia la línea más cargada, repitiendo hasta resolver.<div class="sc">4. Precio nodal</div>Costo mínimo de atender 1 MW adicional en el nodo respetando las líneas congestionadas.</div>`)}
-document.addEventListener('input',e=>{if(e.target.closest('#nb'))upd()});window.addEventListener('resize',prev);document.addEventListener('keydown',e=>{if(e.key=='F1'){e.preventDefault();theory()}});build();
+
 </script></body></html>

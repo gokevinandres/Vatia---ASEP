@@ -53,7 +53,7 @@ header{height:90px;justify-content:space-between;padding:0 24px;border-top:4px s
 <div class="card t"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Barras:</span><input id="nB" class="s" value="7"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Líneas:</span><input id="nL" class="s" value="7"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Trafos:</span><input id="nT" class="s" value="3"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Ind:</span><input id="nI" class="s" value="1"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Cap:</span><input id="nC" class="s" value="2"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Gen:</span><input id="nG" class="s" value="2"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Cargas Z:</span><input id="nZ" class="s" value="1"><button style="background:var(--pr);margin-left:6px" onclick="build()">  Generar Tablas  </button></div><div class="card"><span class="hl">BASES DEL SISTEMA</span><span class="l">Potencia base:</span><input id="sbm" class="w" value="100" oninput="bs()"><span class="u">MVA</span><span class="l">Voltaje base:</span><input id="vbk" class="w" value="220" oninput="bs()"><span class="u">kV</span><span class="l">V_prefalla global:</span><input id="vpg" class="w" value="1.0" oninput="vpg()"><i id="bi" class="l" style="font:italic 12px Consolas,monospace;color:var(--tll);margin-left:14px"></i></div>
 <main><aside id="side"><h4>PANEL DE CONTROL</h4><div id="sts"></div><div class="pie"><i>por Kevin</i><span>Vatia © 2026</span></div></aside>
 <section id="nb"></section><section id="pv"><h5>VISTA PREVIA DEL SISTEMA</h5><canvas id="cv"></canvas></section></main>
-<div class="card"><div class="gr"><small>Cálculo</small><div><button style="background:var(--er);margin-left:6px" onclick="calc()">▶  Calcular Falla</button><button style="background:var(--in);margin-left:6px" onclick="show()">Ver Resultados</button></div></div><div class="gr"><small>Archivo</small><div><button style="background:var(--pr);margin-left:6px" onclick="csv()">Exportar</button></div></div><div class="gr" style="margin-left:auto"><small>Soporte</small><div><button class="sf" style="color:var(--ac)" onclick="help()">Ayuda (F1)</button></div></div></div>
+<div class="card"><div class="gr"><small>Cálculo</small><div><button style="background:var(--er);margin-left:6px" onclick="calc()">▶  Calcular Falla</button><button style="background:var(--in);margin-left:6px" onclick="show()">Ver Resultados</button></div></div><div class="gr"><small>Archivo</small><div><button style="background:var(--pr);margin-left:6px" onclick="csv()">Exportar</button></div></div></div>
 <footer><span id="dot">●</span><span id="stt">Listo.</span><span style="margin-left:auto;font:8px Consolas,monospace;color:var(--tll)">v1.0  ·  Análisis de Fallas</span></footer>
 <script>
 const $=s=>document.querySelector(s),F=(v,d=0)=>{v=parseFloat(String(v).replace(',','.'));return isNaN(v)?d:v};
@@ -169,8 +169,81 @@ function upd(){const n=N('nB')||0,sh=N('nI')+N('nC');let nl=0;for(let i=0;i<N('n
  side([['Barras',n,'var(--ac)'],['Líneas',nl,'var(--in)'],['Transformadores',N('nT'),'var(--pl)'],['Shunts (Ind/Cap)',sh,'var(--am)'],['Generadores',N('nG'),'var(--pv)'],'-',['Barra fallada',$('#bf')?$('#bf').value:'—','var(--er)'],['Tipo de falla',$('#tf')?$('#tf').value.match(/\((.*)\)/)[1]:'—','var(--er)'],'-',['Estado',R?'CALCULADO':'SIN CALCULAR',R?'var(--sl)':'var(--tl)']]);prev()}
 function vpg(){const v=$('#vpg').value;document.querySelectorAll('[id^=vp]').forEach(e=>{if(/^vp\d+$/.test(e.id))e.value=v})}
 function csv(){if(!R){alert('Calcula primero la falla.');return}let s='Fase;I_pu;I_kA;Ang_deg\n';R.I.forEach((z,i)=>s+=`${'abc'[i]};${ab(z)};${ab(z)*R.Ibase};${ag(z)}\n`);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv'}));a.download='Falla.csv';a.click()}
-function help(){modal(mh('?','AYUDA','Componentes simétricas')+`<div class="mb" style="font:13px Consolas,monospace;line-height:1.9"><div class="sc">SLG</div>I0=I1=I2 = V_pref/(Z0+Z1+Z2+3Z_F+3Z_g)<div class="sc">LL</div>I1 = V_pref/(Z1+Z2+Z_F), I2=−I1, I0=0<div class="sc">LLG</div>I1 = V_pref/(Z1+Z_F+Z_T), con Z_T = (Z0+3Z_g+Z_F)‖(Z2+Z_F)<div class="sc">LLL</div>I1 = V_pref/(Z1+Z_F)<div class="sc">Fases</div>Ia = I0+I1+I2 · Ib = I0+a²I1+aI2 · Ic = I0+aI1+a²I2<br>Si Z0 de línea = 0 se asume 3·Z1. Cargas Z cte y capacitores sólo en sec. 1 y 2.</div>`)}
-document.addEventListener('input',e=>{if(e.target.closest('#nb')||e.target.closest('#nb')===null&&e.target.id=='vpg')upd()});document.addEventListener('change',()=>upd());document.addEventListener('keydown',e=>{if(e.key=='F1'){e.preventDefault();help()}});window.addEventListener('resize',prev);
-build();
+function help(){
+  modal(mh('?','AYUDA / TEORÍA','Análisis de fallas por componentes simétricas')+`<div class="mb" style="font:13px Consolas,monospace;line-height:1.85;padding:18px 28px">
+
+    <div class="sc">1. COMPONENTES SIMÉTRICAS</div>
+    Cualquier terna desbalanceada (Va, Vb, Vc) se descompone en 3 secuencias:
+    <div class="formula" style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #B91C1C;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Va = V0 + V1 + V2<br>
+      Vb = V0 + a²·V1 + a·V2<br>
+      Vc = V0 + a·V1 + a²·V2<br>
+      con a = 1∠120° = −0.5 + j·0.866
+    </div>
+    V0 = secuencia cero (tierra), V1 = positiva (normal), V2 = negativa.
+
+    <div class="sc">2. IMPEDANCIAS DE SECUENCIA</div>
+    Cada componente (línea, trafo, generador) tiene 3 impedancias:
+    <div class="formula" style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #B91C1C;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Z1 = impedancia de secuencia positiva (la normal)<br>
+      Z2 = impedancia de secuencia negativa (≈ Z1 para líneas y trafos)<br>
+      Z0 = impedancia de secuencia cero (depende del aterrizaje)
+    </div>
+
+    <div class="sc">3. YBUS POR SECUENCIA</div>
+    Se construyen 3 matrices Ybus independientes (sec. 0, 1, 2) y se invierten
+    para obtener las Zbus. De la diagonal de cada Zbus sale la impedancia de
+    Thévenin vista desde la barra fallada:
+    <div class="formula" style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #B91C1C;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Z0_th = Zbus[0][k][k]<br>
+      Z1_th = Zbus[1][k][k]<br>
+      Z2_th = Zbus[2][k][k]
+    </div>
+
+    <div class="sc">4. FÓRMULAS DE FALLA (barra k)</div>
+
+    <div style="margin:10px 0;padding:8px 14px;background:#FEE2E2;border-left:4px solid #B91C1C">
+      <b>SLG — Monofásica (fase a tierra)</b><br>
+      <span style="font-family:Consolas">I0 = I1 = I2 = V_pref / (Z0 + Z1 + Z2 + 3·ZF + 3·Zg)</span>
+    </div>
+
+    <div style="margin:10px 0;padding:8px 14px;background:#FFEDD5;border-left:4px solid #C2410C">
+      <b>LL — Línea-Línea (bifásica)</b><br>
+      <span style="font-family:Consolas">I1 = V_pref / (Z1 + Z2 + ZF)<br>I2 = −I1 , I0 = 0</span>
+    </div>
+
+    <div style="margin:10px 0;padding:8px 14px;background:#FEF3C7;border-left:4px solid #B45309">
+      <b>LLG — Doble línea-tierra</b><br>
+      <span style="font-family:Consolas">Za = Z0 + 3·Zg + ZF<br>Zb = Z2 + ZF<br>ZT = Za·Zb / (Za + Zb)<br>I1 = V_pref / (Z1 + ZF + ZT)<br>I0 = −I1·(Z2+ZF) / d02<br>I2 = −I1·Za / d02<br>con d02 = Z0 + Z2 + 2·ZF + 3·Zg</span>
+    </div>
+
+    <div style="margin:10px 0;padding:8px 14px;background:#DBEAFE;border-left:4px solid #0369A1">
+      <b>LLL — Trifásica (simétrica)</b><br>
+      <span style="font-family:Consolas">I1 = V_pref / (Z1 + ZF)<br>I0 = I2 = 0</span>
+    </div>
+
+    <div class="sc">5. RECONSTRUCCIÓN abc</div>
+    Una vez obtenidos I0, I1, I2, se vuelve a las fases reales:
+    <div class="formula" style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #B91C1C;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Ia = I0 + I1 + I2<br>
+      Ib = I0 + a²·I1 + a·I2<br>
+      Ic = I0 + a·I1 + a²·I2
+    </div>
+
+    <div class="sc">6. CONVENCIÓN DE IMPEDANCIAS</div>
+    · Si Z0 de una línea = 0, se asume 3·Z1<br>
+    · Trafos YNyn: Y0 = Y1 = Y2 = 1/Z<br>
+    · Trafos YNd:  Y0 solo en el lado Y aterrizado<br>
+    · Trafos Dyn:  Y0 solo en el lado Y aterrizado<br>
+    · Cargas Z cte y capacitores: solo en sec. 1 y 2 (no en sec. 0)
+
+    <div class="sc">7. BASES Y CONVERSIÓN</div>
+    <div class="formula" style="background:#F7F9FC;border:1px solid #CBD5E1;border-left:5px solid #B91C1C;padding:10px 16px;margin:8px 0;font:11px Consolas">
+      Z_base = V_base² / S_base   [Ω]<br>
+      I_base = S_base / (√3 · V_base)   [kA]<br>
+      I_kA = I_pu · I_base
+    </div>
+
+  </div>`) }
 
 function bs(){const S=F($('#sbm').value,100)||100,V=F($('#vbk').value,220)||220;$('#bi').textContent=`→  Z_base = ${(V*V/S).toFixed(2)} Ω   ·   I_base = ${(S/(Math.sqrt(3)*V)).toFixed(3)} kA`}bs();</script></body></html>
