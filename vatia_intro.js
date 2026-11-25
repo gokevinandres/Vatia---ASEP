@@ -317,7 +317,8 @@
     ov.appendChild(title);
 
     const sub = document.createElement('div');
-    sub.textContent = 'SIMULADOR DE SISTEMAS DE POTENCIA KEVIN ANDRÉS GÓMEZ PEÑA';
+    sub.textContent = 'SIMULADOR DE SISTEMAS DE POTENCIA 
+                     "KEVIN ANDRÉS GÓMEZ PEÑA  ASEP 2026-2';
     Object.assign(sub.style, {
       color: '#94A3B8', fontSize: Math.max(9, S * 0.032) + 'px',
       letterSpacing: '5px', marginTop: '6px'
