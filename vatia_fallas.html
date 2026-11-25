@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vatia — Análisis de Fallas</title><style>:root{--mc:#B91C1C}
+:root{--bg:#EDF1F6;--p:#fff;--s:#F7F9FC;--sb:#E2E8F0;--pr:#1E3A5F;--pl:#2C5282;--pd:#152741;--ac:#0E7490;--sl:#047857;--pv:#6D28D9;--pq:#C2410C;--in:#0369A1;--am:#B45309;--tx:#1F2937;--tl:#4B5563;--tll:#94A3B8;--bd:#CBD5E1;--er:#B91C1C}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:13px "Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--pd);height:130px;border-top:4px solid var(--ac);position:relative;display:flex;align-items:center;justify-content:center}
+.badge{position:absolute;left:24px;top:50%;transform:translateY(-50%);background:var(--ac);color:#fff;text-align:center;padding:6px 14px}
+.badge small{display:block;font:700 8px inherit;color:var(--pd)}.badge b{font-size:13px}
+.card{background:var(--p);border:1px solid var(--bd);margin:4px 14px;padding:10px 18px;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+.card.t{margin-top:10px;padding:12px 18px}
+label,.l{color:var(--tl);font-size:12px}.hl{font-weight:700;color:var(--pr);font-size:12px;margin-right:12px}.u{font-weight:700;color:var(--ac);font-size:12px;margin-right:14px}
+input,select{font:inherit;padding:5px;border:1px solid var(--bd);background:var(--s);color:var(--tx);text-align:center;width:100%}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--ac)}input.bad{color:var(--er)}
+.card input.w{width:64px}
+button{font:700 12px inherit;border:0;padding:8px 14px;color:#fff;background:var(--pr);cursor:pointer}
+button:hover:not(:disabled){filter:brightness(1.15)}button:disabled{cursor:default;opacity:.55}
+.sf{background:var(--s);color:var(--tl)}.gr{display:flex;flex-direction:column;gap:4px;margin-right:16px}.gr small{font:700 8px inherit;color:var(--tl);text-transform:uppercase}.gr div{display:flex;gap:4px}
+main{flex:1;display:grid;grid-template-columns:210px minmax(0,1fr) 380px;gap:6px;margin:6px 10px;min-height:520px}
+#side{background:var(--sb);display:flex;flex-direction:column}#side h4{margin:0;background:var(--pr);color:#fff;padding:10px;font-size:12px;text-align:center;border-bottom:2px solid var(--ac)}
+.st{padding:10px 14px 2px}.st small{display:block;font:700 8px inherit;color:var(--tl);text-transform:uppercase}.st b{font-size:18px}
+hr{border:0;border-top:1px solid var(--bd);margin:8px 14px}.pie{margin-top:auto;text-align:center;padding:10px;color:var(--tl);font-size:11px}.pie i{display:block}.pie span{font:10px Consolas,monospace;color:var(--tll)}
+#nb{background:var(--p);border:1px solid var(--bd);display:flex;flex-direction:column;min-width:0}
+.tabs{display:flex;background:var(--bg)}.tabs button{background:var(--sb);color:var(--tl);padding:10px 20px;font-size:12px}.tabs button.on{background:var(--pr);color:#fff}
+.pan{display:none;overflow:auto;flex:1}.pan.on{display:block}
+.dh{background:var(--pd);color:#fff;text-align:center;padding:10px}.dh b{font-size:15px;display:block}.dh i{color:var(--tl);font-size:11px;color:#CBD5E1}
+table{border-collapse:separate;border-spacing:1px;width:100%}th{background:var(--sb);color:var(--ac);padding:7px 8px;font-size:12px}
+td{padding:2px;text-align:center;background:#fff}tr:nth-child(odd) td{background:var(--s)}td.n{font-weight:700;color:var(--ac)}
+.g{padding:15px}.g table{width:100%}.tg{display:block;color:#fff;font-weight:700;padding:6px;font-size:12px}
+.nt{margin:4px 15px 15px;padding:10px 14px;background:var(--s);border:1px solid var(--bd);font:12px Consolas,monospace;color:var(--tl)}
+#pv{background:var(--p);border:1px solid var(--bd);display:flex;flex-direction:column}#pv h5{margin:0;background:var(--sb);color:var(--ac);padding:8px;text-align:center;font-size:12px}
+canvas{display:block}#cv{flex:1;width:100%;min-height:380px}
+footer{background:var(--pd);height:32px;display:flex;align-items:center;border-left:3px solid var(--ac);color:#fff;font-size:12px;gap:6px;padding-right:14px}
+#dot{color:var(--sl);margin-left:12px;font-size:14px}#bar{width:120px;height:8px;background:var(--bd)}#bar i{display:block;height:100%;width:0;background:var(--ac)}
+.ov{position:fixed;inset:0;background:#0008;z-index:9;display:flex;align-items:center;justify-content:center}
+.win{background:var(--bg);width:min(1300px,96vw);height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.mh{background:var(--pd);border-top:4px solid var(--ac);color:#fff;display:flex;align-items:center;padding:10px 20px;gap:14px}.mh .bn{background:var(--ac);color:var(--pd);font:700 22px inherit;width:48px;height:48px;display:grid;place-items:center}.mh b{font-size:16px;display:block}.mh i{font-size:11px;color:#CBD5E1}.mh button{margin-left:auto;background:var(--er)}
+.mb{overflow:auto;flex:1;padding:12px 14px}.kp{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.k{background:var(--p);border:1px solid var(--bd);border-left:5px solid var(--ac);padding:8px 14px}.k small{display:block;font:700 8px inherit;color:var(--tl);text-transform:uppercase}.k b{font-size:16px}.k i{display:block;font-size:11px;color:var(--tl)}
+.d table td{font:12px Consolas,monospace;padding:5px 8px;white-space:nowrap}.d th{background:var(--pd);color:#fff}.d{overflow-x:auto;background:var(--p);padding:12px;border:1px solid var(--bd)}
+.sc{background:var(--s);border:1px solid var(--bd);border-left:5px solid var(--ac);padding:8px 14px;font-weight:700;font-size:13px;margin:4px 0 10px}
+.bd{background:var(--er)!important;color:#fff}
+@media(max-width:1000px){main{grid-template-columns:1fr}}
+
+header{height:90px;justify-content:space-between;padding:0 24px;border-top:4px solid var(--mc)}
+.ic{width:54px;height:54px;border-radius:50%;background:var(--mc);display:grid;place-items:center;color:#fff;font:700 20px "Segoe UI";margin-right:14px}
+.hl2{display:flex;align-items:center;color:#fff}.hl2 b{font-size:15px;display:block}.hl2 i{font-size:11px;color:#CBD5E1}
+.b2{background:var(--mc);color:#fff;font-weight:700;padding:8px 20px;font-size:12px}
+#side h4{background:var(--mc)}footer{border-left-color:var(--mc)}#pv h5{color:var(--mc)}
+.card input.s{width:46px}.card input.w{width:64px}.fr{display:flex;gap:14px;align-items:center;margin:22px 40px}.fr b{font-size:14px}.fr select,.fr input{width:auto;min-width:90px}
+.g td select{width:100%}.ok{color:var(--sl);font-weight:700}.no{color:var(--er);font-weight:700}
+</style></head><body>
+<header><div class="hl2"><div class="ic">⚡</div><div><b>ANÁLISIS DE FALLAS ELÉCTRICAS</b><i>Componentes simétricas  ·  SLG  ·  LL  ·  LLG  ·  LLL</i></div></div><div class="b2">MÉTODO SIMÉTRICO</div></header>
+<div class="card t"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Barras:</span><input id="nB" class="s" value="7"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Líneas:</span><input id="nL" class="s" value="7"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Trafos:</span><input id="nT" class="s" value="3"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Ind:</span><input id="nI" class="s" value="1"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Cap:</span><input id="nC" class="s" value="2"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Gen:</span><input id="nG" class="s" value="2"><span class="l" style="margin-left:10px;font-weight:700;color:var(--tx);font-size:12px">Cargas Z:</span><input id="nZ" class="s" value="1"><button style="background:var(--pr);margin-left:6px" onclick="build()">  Generar Tablas  </button></div><div class="card"><span class="hl">BASES DEL SISTEMA</span><span class="l">Potencia base:</span><input id="sbm" class="w" value="100" oninput="bs()"><span class="u">MVA</span><span class="l">Voltaje base:</span><input id="vbk" class="w" value="220" oninput="bs()"><span class="u">kV</span><span class="l">V_prefalla global:</span><input id="vpg" class="w" value="1.0" oninput="vpg()"><i id="bi" class="l" style="font:italic 12px Consolas,monospace;color:var(--tll);margin-left:14px"></i></div>
+<main><aside id="side"><h4>PANEL DE CONTROL</h4><div id="sts"></div><div class="pie"><i>por Kevin</i><span>Vatia © 2026</span></div></aside>
+<section id="nb"></section><section id="pv"><h5>VISTA PREVIA DEL SISTEMA</h5><canvas id="cv"></canvas></section></main>
+<div class="card"><div class="gr"><small>Cálculo</small><div><button style="background:var(--er);margin-left:6px" onclick="calc()">▶  Calcular Falla</button><button style="background:var(--in);margin-left:6px" onclick="show()">Ver Resultados</button></div></div><div class="gr"><small>Archivo</small><div><button style="background:var(--pr);margin-left:6px" onclick="csv()">Exportar</button></div></div><div class="gr" style="margin-left:auto"><small>Soporte</small><div><button class="sf" style="color:var(--ac)" onclick="help()">Ayuda (F1)</button></div></div></div>
+<footer><span id="dot">●</span><span id="stt">Listo.</span><span style="margin-left:auto;font:8px Consolas,monospace;color:var(--tll)">v1.0  ·  Análisis de Fallas</span></footer>
+<script>
+const $=s=>document.querySelector(s),F=(v,d=0)=>{v=parseFloat(String(v).replace(',','.'));return isNaN(v)?d:v};
+const P=(s,d=0)=>Math.trunc(F(s,d)),fe=x=>x==null?'—':x.toExponential(3);
+const hdr=(a,b,c)=>`<div class="dh"${c?` style="background:${c}"`:''}><b>${a}</b><i>${b||''}</i></div>`;
+const I=(id,v)=>`<td><input id="${id}" value="${v}">`;
+const SEL=(id,o,v)=>`<td><select id="${id}">${o.map(x=>`<option${x==v?' selected':''}>${x}`).join('')}</select>`;
+const T=(h,r)=>`<div class="g"><table><tr>${h.map(x=>'<th>'+x).join('')}</tr>${r}</table></div>`;
+function mk(names){$('#nb').innerHTML='<div class="tabs">'+names.map((x,i)=>`<button class="${i?'':'on'}" onclick="sw(${i})">${x}</button>`).join('')+'</div>'+names.map((_,i)=>`<div id="p${i}" class="pan ${i?'':'on'}"></div>`).join('')}
+function sw(k){document.querySelectorAll('#nb>.pan').forEach((p,i)=>p.classList.toggle('on',i==k));document.querySelectorAll('#nb>.tabs>button').forEach((p,i)=>p.classList.toggle('on',i==k))}
+function stat(t,c){$('#stt').textContent=t;$('#dot').style.color=c||'var(--mc)'}
+function side(a){$('#sts').innerHTML=a.map(q=>q=='-'?'<hr>':`<div class="st"><small>${q[0]}</small><b style="color:${q[2]}">${q[1]}</b></div>`).join('')}
+function modal(h){const m=document.createElement('div');m.className='ov';m.innerHTML='<div class="win">'+h+'</div>';m.onclick=e=>{if(e.target==m)m.remove()};document.body.appendChild(m);return m}
+const mh=(n,a,b)=>`<div class="mh">${n!==''?`<div class="bn">${n}</div>`:''}<div><b>${a}</b><i>${b}</i></div><button onclick="this.closest('.ov').remove()">✕</button></div>`;
+const tb=(h,r)=>`<table><tr>${h.map(x=>'<th>'+x).join('')}</tr>${r.map(q=>'<tr>'+q.map(c=>typeof c=='object'?`<td class="${c.c||''}"${c.s?` style="background:${c.s};color:#fff"`:''}>${c.v}`:'<td>'+c).join('')+'</tr>').join('')}</table>`;
+const K=(a,b,c,col)=>`<div class="k" style="border-color:${col}"><small>${a}</small><b style="color:${col}">${b}</b><i>${c||''}</i></div>`;
+function win(ic,t,sub,kp,tabs){const m=modal(mh(ic,t,sub)+'<div class="mb"><div class="kp">'+kp+'</div><div class="tabs" id="mt">'+tabs.map((q,i)=>`<button class="${i?'':'on'}">${q[0]}</button>`).join('')+'</div><div id="mp" class="d" style="padding:14px">'+tabs[0][1]+'</div></div>');
+ m.querySelectorAll('#mt button').forEach((b,i)=>b.onclick=()=>{m.querySelectorAll('#mt button').forEach(x=>x.classList.remove('on'));b.classList.add('on');m.querySelector('#mp').innerHTML=tabs[i][1]})}
+/* red unifilar genérica: nf(i)->{c,r,s,m}  m: G|L|F */
+function net(cv,title,n,ed,nf,leg,big){const x=cv.getContext('2d'),W=cv.width=cv.clientWidth||520,H=cv.height=cv.clientHeight||520,k=big?1.5:1;
+ x.fillStyle='#fff';x.fillRect(0,0,W,H);
+ const TX=(t,a,b,f,c,al)=>{x.font=f;x.fillStyle=c;x.textAlign=al||'center';x.textBaseline='middle';x.fillText(t,a,b)},O=(a,b,r,f,s,w)=>{x.beginPath();x.arc(a,b,r,0,7);if(f){x.fillStyle=f;x.fill()}if(s){x.strokeStyle=s;x.lineWidth=w;x.stroke()}};
+ const mc=getComputedStyle(document.documentElement).getPropertyValue('--mc');
+ TX(title,W/2,26,`700 ${big?22:13}px Segoe UI`,'#1E3A5F');x.fillStyle=mc;x.fillRect(W/2-100,big?44:40,200,2);
+ if(!ed.length){TX('Sin líneas definidas',W/2,H/2-10,'11px Segoe UI','#94A3B8');TX('Complete las pestañas de datos para ver el diagrama',W/2,H/2+10,'11px Segoe UI','#94A3B8');return}
+ const cx=W/2,cy=H/2+20,R=Math.min(W,H)*.30,pos=[...Array(n)].map((_,i)=>{const a=2*Math.PI*i/n-Math.PI/2;return[cx+R*Math.cos(a),cy+R*Math.sin(a)]});
+ ed.forEach((e,q)=>{const[x1,y1]=pos[e.a],[x2,y2]=pos[e.b];x.lineCap='round';x.strokeStyle='#0A0E15';x.lineWidth=4*k;x.beginPath();x.moveTo(x1+2,y1+2);x.lineTo(x2+2,y2+2);x.stroke();
+  x.strokeStyle=e.col||'#475569';x.lineWidth=3*k;x.setLineDash(e.dash?[6,4]:[]);x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();x.setLineDash([]);
+  const mx=(x1+x2)/2,my=(y1+y2)/2,d=Math.hypot(x2-x1,y2-y1)||1,o=(ed.length>1&&q%2==0?22:-22)*k,lx=mx-(y2-y1)/d*o,ly=my+(x2-x1)/d*o;
+  x.strokeStyle='#CBD5E1';x.lineWidth=1;x.setLineDash([2,2]);x.beginPath();x.moveTo(mx,my);x.lineTo(lx,ly);x.stroke();x.setLineDash([]);
+  x.font=`700 ${7*k+1}px Consolas`;const w=x.measureText(e.t).width+8,h=14*k;x.fillStyle='#fff';x.strokeStyle=e.col||mc;x.fillRect(lx-w/2,ly-h/2,w,h);x.strokeRect(lx-w/2,ly-h/2,w,h);TX(e.t,lx,ly,x.font,e.col||'#0E7490')});
+ pos.forEach(([a,b],i)=>{const q=nf(i);x.strokeStyle='#475569';x.lineWidth=10*k;x.lineCap='round';x.beginPath();x.moveTo(a-24*k,b);x.lineTo(a+24*k,b);x.stroke();
+  O(a,b,17*k,q.r);O(a,b,13*k,q.c,'#fff',2);TX(i+1,a,b,`700 ${10*k}px Segoe UI`,'#fff');TX(q.s||'',a,b+30*k,`700 ${8*k}px Segoe UI`,q.c);
+  if(q.m=='G'||q.m=='F'){const gy=b-44*k;x.strokeStyle='#475569';x.lineWidth=2;x.beginPath();x.moveTo(a,b-17*k);x.lineTo(a,gy+11*k);x.stroke();O(a,gy,11*k,'#fff',q.m=='F'?'#B91C1C':'#6D28D9',2);TX(q.m=='F'?'⚡':'G',a,gy,`700 ${10*k}px Segoe UI`,q.m=='F'?'#B91C1C':'#6D28D9')}
+  if(q.m=='L'||q.m=='GL'){const ly=b+46*k;x.strokeStyle='#475569';x.lineWidth=2;x.beginPath();x.moveTo(a,b+17*k);x.lineTo(a,ly-8*k);x.stroke();x.fillStyle='#C2410C';x.beginPath();x.moveTo(a-7*k,ly-8*k);x.lineTo(a+7*k,ly-8*k);x.lineTo(a,ly);x.fill();if(q.l)TX(q.l,a+14*k,ly-4,`${8*k+1}px Consolas`,'#C2410C','left')}});
+ if(!big){x.fillStyle='#fff';x.strokeStyle='#CBD5E1';x.lineWidth=1;const h=24+leg.length*13;x.fillRect(12,H-h-12,150,h);x.strokeRect(12,H-h-12,150,h);TX('LEYENDA',87,H-h+2,'700 8px Segoe UI','#4B5563');
+  leg.forEach(([c,t],j)=>{O(28,H-h+17+j*13,4,c,'#fff',1);TX(t,38,H-h+17+j*13,'8px Segoe UI','#1F2937','left')})}}
+
+/*ENGINE*/
+const Cx=(r,i=0)=>[r,i],ad=(a,b)=>[a[0]+b[0],a[1]+b[1]],sb=(a,b)=>[a[0]-b[0],a[1]-b[1]],ml=(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]],
+dv=(a,b)=>{const d=b[0]*b[0]+b[1]*b[1];return[(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d]},ab=a=>Math.hypot(a[0],a[1]),ag=a=>Math.atan2(a[1],a[0])*180/Math.PI,ng=a=>[-a[0],-a[1]];
+function cinv(M){const n=M.length,A=M.map((r,i)=>[...r.map(x=>[...x]),...Array.from({length:n},(_,j)=>j==i?[1,0]:[0,0])]);
+ for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(ab(A[r][c])>ab(A[p][c]))p=r;if(ab(A[p][c])<1e-12)throw Error('Ybus singular');[A[c],A[p]]=[A[p],A[c]];
+  const d=A[c][c];A[c]=A[c].map(x=>dv(x,d));for(let r=0;r<n;r++)if(r!=c){const f=A[r][c];A[r]=A[r].map((x,j)=>sb(x,ml(f,A[c][j])))}}
+ return A.map(r=>r.slice(n))}
+function ybusF(n,c,seq){const Y=[...Array(n)].map(_=>[...Array(n)].map(_=>[0,0])),S=c.S,add=(i,j,v)=>{Y[i][j]=ad(Y[i][j],v)},one=[1,0];
+ for(const L of c.lineas){const Z=seq==0?L.Z0:L.Z1;if(ab(Z)<1e-9)continue;const y=dv(one,Z),{a,b}=L;add(a,a,y);add(b,b,y);add(a,b,ng(y));add(b,a,ng(y));if(seq){add(a,a,[0,L.B]);add(b,b,[0,L.B])}}
+ for(const T of c.trafos){const Z=seq==0?T.Z0:T.Z1;if(ab(Z)<1e-9)continue;const y=dv(one,Z),{a,b}=T;
+  if(seq){add(a,a,y);add(b,b,y);add(a,b,ng(y));add(b,a,ng(y))}
+  else if(T.cfg.includes('YNyn')){add(a,a,y);add(b,b,y);add(a,b,ng(y));add(b,a,ng(y))}else if(T.cfg.includes('YNd'))add(a,a,y);else if(T.cfg.includes('Dyn'))add(b,b,y)}
+ for(const q of c.ind)add(q.bus,q.bus,[0,-q.Q/S]);
+ if(seq){for(const q of c.cap)add(q.bus,q.bus,[0,q.Q/S]);for(const q of c.cargas)add(q.bus,q.bus,[q.P/S,-q.Q/S])}
+ for(const g of c.gens){const Z=seq==0?g.Z0:g.Z1;if(ab(Z)<1e-9)continue;add(g.bus,g.bus,dv(one,Z))}
+ return Y}
+function resolver(t,V,Z0,Z1,Z2,ZF,Zg){const z=[0,0],nz=d=>ab(d)>1e-12;let r;
+ if(t=='SLG'){const d=ad(ad(ad(Z0,Z1),Z2),ad(ml([3,0],ZF),ml([3,0],Zg))),I=nz(d)?dv(V,d):z;r={I0:I,I1:I,I2:I,den:d}}
+ else if(t=='LLL'){const d=ad(Z1,ZF),I=nz(d)?dv(V,d):z;r={I0:z,I1:I,I2:z,den:d}}
+ else if(t=='LL'){const d=ad(ad(Z1,Z2),ZF),I=nz(d)?dv(V,d):z;r={I0:z,I1:I,I2:ng(I),den:d}}
+ else{const Za=ad(ad(Z0,ml([3,0],Zg)),ZF),Zb=ad(Z2,ZF),d02=ad(ad(Z0,Z2),ad(ml([2,0],ZF),ml([3,0],Zg))),s=ad(Za,Zb),ZT=nz(s)?dv(ml(Za,Zb),s):z,d1=ad(ad(Z1,ZF),ZT),I1=nz(d1)?dv(V,d1):z;
+  let I0=z,I2=z;if(nz(d02)){I0=ng(dv(ml(I1,ad(Z2,ZF)),d02));I2=ng(dv(ml(I1,Za),d02))}r={I0,I1,I2,den:d1,ZT}}
+ return r}
+function faultCalc(c){const n=c.n,Y=[0,1,2].map(s=>ybusF(n,c,s)),Zb=Y.map(cinv),k=c.bus,
+ Vp=c.Vp.map((v,i)=>[v*Math.cos(c.ang[i]),v*Math.sin(c.ang[i])]),Zt=Zb.map(z=>z[k][k]),r=resolver(c.tipo,Vp[k],Zt[0],Zt[1],Zt[2],c.ZF,c.Zg),
+ a=[-.5,Math.sqrt(3)/2],a2=ml(a,a),abc=(x0,x1,x2)=>[ad(ad(x0,x1),x2),ad(ad(x0,ml(a2,x1)),ml(a,x2)),ad(ad(x0,ml(a,x1)),ml(a2,x2))],
+ V0=[...Array(n)].map((_,i)=>ng(ml(Zb[0][i][k],r.I0))),V1=[...Array(n)].map((_,i)=>sb(Vp[i],ml(Zb[1][i][k],r.I1))),V2=[...Array(n)].map((_,i)=>ng(ml(Zb[2][i][k],r.I2))),
+ I=abc(r.I0,r.I1,r.I2),VF=abc(V0[k],V1[k],V2[k]),
+ ap=c.gens.map(g=>{const d=[ml(Zb[0][g.bus][k],r.I0),ml(Zb[1][g.bus][k],r.I1),ml(Zb[2][g.bus][k],r.I2)],zs=[g.Z0,g.Z1,g.Z2],s=d.map((v,j)=>ab(zs[j])>1e-9?dv(v,zs[j]):[0,0]);return{bus:g.bus+1,s,abc:abc(...s)}});
+ return{Y,Zb,Zt,r,I,VF,V0,V1,V2,ap,Vp:Vp[k],Ibase:c.S/(Math.sqrt(3)*c.VB)}}
+/*END*/
+
+const TP=['Monofásica (SLG)','Línea-Línea (LL)','Doble Línea-Tierra (LLG)','Trifásica (LLL)'],TC={'Monofásica (SLG)':'SLG','Línea-Línea (LL)':'LL','Doble Línea-Tierra (LLG)':'LLG','Trifásica (LLL)':'LLL'},
+CF=['YNyn (Y aterrizado - Y aterrizado)','YNd (Y aterrizado - Delta)','Dyn (Delta - Y aterrizado)','Yy (Y sin aterrizar - Y sin aterrizar)'],RES=[];let R=null,CFG=null;
+const N=id=>P($('#'+id).value,0),nm=['Barras','Líneas','Transformadores','Inductores','Capacitores','Cargas (Z cte)','Generadores','Falla'];
+const rows=(n,f)=>[...Array(n).keys()].map(f).join('');
+function build(){const n=N('nB'),nl=N('nL'),nt=N('nT'),ni=N('nI'),nc=N('nC'),ng=N('nG'),nz=N('nZ');
+ if(!(n>=2&&n<=30)){alert('Barras: ingrese un entero entre 2 y 30.');return}
+ mk(nm);R=null;const e=(id,v)=>I(id,v),H=(a,b)=>hdr(a,b),tp=['Slack (ref.)','PV','PQ'];
+ $('#p0').innerHTML=hdr('DATOS DE LAS BARRAS','')+T(['Barra','Tipo','V_pref (p.u.)','Ángulo (°)'],rows(n,i=>`<tr><td class="n" style="color:var(--er)">${i+1}${SEL('tp'+i,tp,i?'PQ':'Slack (ref.)')}${e('vp'+i,'1.0')}${e('an'+i,'0.0')}</tr>`));
+ $('#p1').innerHTML=hdr('DATOS DE LAS LÍNEAS (R, X, B/2)','Ingrese R, X en p.u., B/2 (susceptancia) y Z0 (R0, X0). Si Z0=0, se asume 3*Z1.')+T(['Barra A','Barra B','R₁','X₁','B₁/2','R₀','X₀'],rows(nl,i=>`<tr>${e('l'+i+'_0','')}${e('l'+i+'_1','')}${['0.01','0.1','0.025','0.03','0.3'].map((v,j)=>e(`l${i}_${j+2}`,v)).join('')}</tr>`));
+ $('#p2').innerHTML=hdr('DATOS DE LOS TRANSFORMADORES (R, X)','Ingrese R, X (Z1=Z2=Z0) y seleccione la configuración.')+T(['Barra A','Barra B','R','X','Conexión'],rows(nt,i=>`<tr>${e('t'+i+'_0','')}${e('t'+i+'_1','')}${e('t'+i+'_2','0.01')}${e('t'+i+'_3','0.1')}${SEL('t'+i+'_4',CF,CF[0])}</tr>`));
+ $('#p3').innerHTML=hdr('DATOS DE LOS INDUCTORES (SHUNTS)','Ingrese la barra y la potencia reactiva absorbida Q en MVAr a tensión nominal.')+T(['Nodo','Q_abs (MVAr)'],rows(ni,i=>`<tr>${e('i'+i+'_0','1')}${e('i'+i+'_1','50.0')}</tr>`));
+ $('#p4').innerHTML=hdr('DATOS DE LOS CAPACITORES (SHUNTS)','Ingrese la barra y la potencia reactiva entregada Q en MVAr a tensión nominal.')+T(['Nodo','Q_ent (MVAr)'],rows(nc,i=>`<tr>${e('c'+i+'_0','1')}${e('c'+i+'_1','50.0')}</tr>`));
+ $('#p5').innerHTML=hdr('CARGAS DE IMPEDANCIA CONSTANTE','Ingrese la barra, P y Q de la carga (se modelará como admitancia shunt Y = P - jQ).')+T(['Nodo','P (MW)','Q (MVAr)'],rows(nz,i=>`<tr>${e('z'+i+'_0','1')}${e('z'+i+'_1','0.0')}${e('z'+i+'_2','0.0')}</tr>`));
+ $('#p6').innerHTML=hdr('IMPEDANCIAS DE LOS GENERADORES','Seleccione el nodo e ingrese R y X para cada secuencia.')+T(['Gen #','Nodo','R₁','X₁','R₂','X₂','R₀','X₀'],rows(ng,i=>`<tr><td class="n" style="color:var(--pv)">G${i+1}${['1','0.0','0.1','0.0','0.05','0.1','0.05'].map((v,j)=>e(`g${i}_${j}`,v)).join('')}</tr>`));
+ $('#p7').innerHTML=hdr('CONFIGURACIÓN DE LA FALLA','','var(--er)')+`<div class="fr"><b>Barra fallada:</b><select id="bf">${[...Array(n).keys()].map(i=>`<option>${i+1}`).join('')}</select></div><div class="fr"><b>Tipo de falla:</b><select id="tf">${TP.map(x=>`<option>${x}`).join('')}</select></div>
+ <div class="fr"><b>Z_F (fase):</b><input id="zf" value="0.0"><span class="u">p.u.</span><b style="margin-left:30px">Z_g (tierra):</b><input id="zg" value="0.0"><span class="u">p.u.</span></div>`;
+ stat(`Sistema: ${n} barras, ${nl} líneas, ${nt} trafos, ${ni} ind, ${nc} cap, ${nz} cargas, ${ng} gen.`);upd()}
+function read(){const n=N('nB'),S=F($('#sbm').value,100)||100,VB=F($('#vbk').value,220)||220,ok=(a,b)=>a>=0&&b>=0&&a<n&&b<n&&a!=b,c={n,S,VB,Vp:[],ang:[],lineas:[],trafos:[],ind:[],cap:[],cargas:[],gens:[],tp:[]};
+ for(let i=0;i<n;i++){c.Vp.push(F($('#vp'+i).value,1));c.ang.push(F($('#an'+i).value)*Math.PI/180);c.tp.push($('#tp'+i).value)}
+ for(let i=0;i<N('nL');i++){const a=P($(`#l${i}_0`).value)-1,b=P($(`#l${i}_1`).value)-1,v=j=>F($(`#l${i}_${j}`).value);if(!ok(a,b))continue;const Z1=[v(2),v(3)],R0=v(5),X0=v(6);c.lineas.push({a,b,Z1,Z0:(R0||X0)?[R0,X0]:[3*Z1[0],3*Z1[1]],B:v(4)})}
+ for(let i=0;i<N('nT');i++){const a=P($(`#t${i}_0`).value)-1,b=P($(`#t${i}_1`).value)-1;if(!ok(a,b))continue;const Z=[F($(`#t${i}_2`).value),F($(`#t${i}_3`).value)];c.trafos.push({a,b,Z1:Z,Z0:Z,cfg:$(`#t${i}_4`).value})}
+ for(let i=0;i<N('nI');i++){const b=P($(`#i${i}_0`).value)-1,Q=F($(`#i${i}_1`).value);if(b>=0&&b<n&&Q)c.ind.push({bus:b,Q})}
+ for(let i=0;i<N('nC');i++){const b=P($(`#c${i}_0`).value)-1,Q=F($(`#c${i}_1`).value);if(b>=0&&b<n&&Q)c.cap.push({bus:b,Q})}
+ for(let i=0;i<N('nZ');i++){const b=P($(`#z${i}_0`).value)-1,p=F($(`#z${i}_1`).value),q=F($(`#z${i}_2`).value);if(b>=0&&b<n&&(p||q))c.cargas.push({bus:b,P:p,Q:q})}
+ for(let i=0;i<N('nG');i++){const v=j=>F($(`#g${i}_${j}`).value),b=P($(`#g${i}_0`).value)-1;if(b>=0&&b<n&&(Math.abs(v(2))>1e-9||Math.abs(v(6))>1e-9))c.gens.push({bus:b,Z1:[v(1),v(2)],Z2:[v(3),v(4)],Z0:[v(5),v(6)]})}
+ c.bus=P($('#bf').value)-1;c.tipo=TC[$('#tf').value];c.ZF=[F($('#zf').value),0];c.Zg=[F($('#zg').value),0];return c}
+const fz=(z,d=4)=>Math.abs(z[1])<1e-12?z[0].toFixed(d):Math.abs(z[0])<1e-12?z[1].toFixed(d)+'j':`${z[0].toFixed(d)} ${z[1]>=0?'+':'-'} ${Math.abs(z[1]).toFixed(d)}j`,pol=(z,k=1,d=4)=>`${(ab(z)*k).toFixed(d)} ∠ ${ag(z).toFixed(2)}°`;
+function calc(){try{CFG=read();R=faultCalc(CFG);stat('Falla calculada correctamente.','var(--sl)');upd();show()}catch(e){alert('Error en el cálculo:\n'+e.message)}}
+function mat(M,t){return `<div class="sc">${t}</div>`+tb(['',...M.map((_,j)=>'B'+(j+1))],M.map((r,i)=>['B'+(i+1),...r.map(z=>fz(z))]))}
+function show(){if(!R){alert('Calcula primero la falla.');return}const c=CFG,r=R.r,Ib=R.Ibase,nm3=['a','b','c'],tn={SLG:'Monofásica (SLG)',LL:'Línea-Línea (LL)',LLG:'Doble Línea-Tierra (LLG)',LLL:'Trifásica (LLL)'}[c.tipo],mx=Math.max(...R.I.map(ab));
+ const t1=`<div class="sc">CORRIENTES DE FALLA (fases)</div>`+tb(['Fase','I (p.u.)','I (kA)','Ángulo'],R.I.map((z,i)=>['I'+nm3[i],ab(z).toFixed(4),(ab(z)*Ib).toFixed(4),ag(z).toFixed(2)+'°']))+`<div class="sc" style="margin-top:12px">TENSIONES EN LA BARRA FALLADA</div>`+tb(['Fase','V (p.u.)','V (kV línea-neutro)','Ángulo'],R.VF.map((z,i)=>['V'+nm3[i],ab(z).toFixed(4),(ab(z)*c.VB/Math.sqrt(3)).toFixed(3),ag(z).toFixed(2)+'°']));
+ const t2=`<div class="sc">COMPONENTES SIMÉTRICAS EN LA FALLA</div>`+tb(['Secuencia','Z_Thévenin','I (p.u.)','V barra fallada (p.u.)'],[0,1,2].map(s=>['Sec. '+s,fz(R.Zt[s]),pol(s==0?r.I0:s==1?r.I1:r.I2),pol([R.V0,R.V1,R.V2][s][c.bus])]))+`<div class="sc" style="margin-top:12px">Denominador = ${fz(r.den)} · V_pref = ${pol(R.Vp)}</div><div class="sc">TENSIONES DE BARRA (secuencias, p.u.)</div>`+tb(['Barra','V0','V1','V2'],R.V0.map((_,i)=>[i+1,pol(R.V0[i]),pol(R.V1[i]),pol(R.V2[i])]));
+ const t3=[0,1,2].map(s=>mat(R.Y[s],'Ybus secuencia '+s)+mat(R.Zb[s],'Zbus secuencia '+s)).join('');
+ const t4=R.ap.length?tb(['Gen (barra)','I0 (p.u.)','I1 (p.u.)','I2 (p.u.)','|Ia| (kA)','|Ib| (kA)','|Ic| (kA)'],R.ap.map(g=>[g.bus,pol(g.s[0]),pol(g.s[1]),pol(g.s[2]),...g.abc.map(z=>(ab(z)*Ib).toFixed(4))])):'<div class="sc">No hay generadores definidos.</div>';
+ win('⚡','Resultados — Análisis de Fallas','Componentes simétricas  ·  '+tn+'  ·  barra '+(c.bus+1),K('Tipo de falla',c.tipo,tn,'#B91C1C')+K('Barra fallada',c.bus+1,'','#0E7490')+K('I de falla máx',(mx*Ib).toFixed(3)+' kA',mx.toFixed(4)+' p.u.','#C2410C')+K('I_base',Ib.toFixed(3)+' kA','S_base / (√3 · V_base)','#0369A1'),
+  [['Resumen',t1],['Secuencias',t2],['Ybus / Zbus',t3],['Aportes de generadores',t4]])}
+function prev(){const c=$('#cv');if(!c||!$('#nB')||!$('#tp0'))return;let n=N('nB'),ed=[],g=new Set(),cg=[];
+ for(let i=0;i<N('nL');i++){const a=P($(`#l${i}_0`).value)-1,b=P($(`#l${i}_1`).value)-1;if(a>=0&&b>=0&&a<n&&b<n&&a!=b)ed.push({a,b,t:`Z=${F($(`#l${i}_2`).value)}+j${F($(`#l${i}_3`).value)}`,col:'#475569'})}
+ for(let i=0;i<N('nT');i++){const a=P($(`#t${i}_0`).value)-1,b=P($(`#t${i}_1`).value)-1;if(a>=0&&b>=0&&a<n&&b<n&&a!=b)ed.push({a,b,t:'T'+(i+1),col:'#6D28D9',dash:1})}
+ for(let i=0;i<N('nG');i++)g.add(P($(`#g${i}_0`).value)-1);const f=P($('#bf')?.value)-1,col={'Slack (ref.)':'#047857',PV:'#6D28D9',PQ:'#C2410C'},ring={'Slack (ref.)':'#D1FAE5',PV:'#EDE9FE',PQ:'#FFEDD5'};
+ net(c,'Diagrama Unifilar — Vista Previa',n,ed,i=>{const t=$('#tp'+i).value;return{c:col[t],r:ring[t],s:t=='Slack (ref.)'?'SLK':t,m:i==f?'F':g.has(i)?'G':''}},[['#047857','Slack'],['#6D28D9','PV / Trafo'],['#C2410C','PQ'],['#B91C1C','Barra fallada']])}
+function upd(){const n=N('nB')||0,sh=N('nI')+N('nC');let nl=0;for(let i=0;i<N('nL');i++)if(P($(`#l${i}_0`)?.value)>0&&P($(`#l${i}_1`)?.value)>0)nl++;
+ side([['Barras',n,'var(--ac)'],['Líneas',nl,'var(--in)'],['Transformadores',N('nT'),'var(--pl)'],['Shunts (Ind/Cap)',sh,'var(--am)'],['Generadores',N('nG'),'var(--pv)'],'-',['Barra fallada',$('#bf')?$('#bf').value:'—','var(--er)'],['Tipo de falla',$('#tf')?$('#tf').value.match(/\((.*)\)/)[1]:'—','var(--er)'],'-',['Estado',R?'CALCULADO':'SIN CALCULAR',R?'var(--sl)':'var(--tl)']]);prev()}
+function vpg(){const v=$('#vpg').value;document.querySelectorAll('[id^=vp]').forEach(e=>{if(/^vp\d+$/.test(e.id))e.value=v})}
+function csv(){if(!R){alert('Calcula primero la falla.');return}let s='Fase;I_pu;I_kA;Ang_deg\n';R.I.forEach((z,i)=>s+=`${'abc'[i]};${ab(z)};${ab(z)*R.Ibase};${ag(z)}\n`);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv'}));a.download='Falla.csv';a.click()}
+function help(){modal(mh('?','AYUDA','Componentes simétricas')+`<div class="mb" style="font:13px Consolas,monospace;line-height:1.9"><div class="sc">SLG</div>I0=I1=I2 = V_pref/(Z0+Z1+Z2+3Z_F+3Z_g)<div class="sc">LL</div>I1 = V_pref/(Z1+Z2+Z_F), I2=−I1, I0=0<div class="sc">LLG</div>I1 = V_pref/(Z1+Z_F+Z_T), con Z_T = (Z0+3Z_g+Z_F)‖(Z2+Z_F)<div class="sc">LLL</div>I1 = V_pref/(Z1+Z_F)<div class="sc">Fases</div>Ia = I0+I1+I2 · Ib = I0+a²I1+aI2 · Ic = I0+aI1+a²I2<br>Si Z0 de línea = 0 se asume 3·Z1. Cargas Z cte y capacitores sólo en sec. 1 y 2.</div>`)}
+document.addEventListener('input',e=>{if(e.target.closest('#nb')||e.target.closest('#nb')===null&&e.target.id=='vpg')upd()});document.addEventListener('change',()=>upd());document.addEventListener('keydown',e=>{if(e.key=='F1'){e.preventDefault();help()}});window.addEventListener('resize',prev);
+build();
+
+function bs(){const S=F($('#sbm').value,100)||100,V=F($('#vbk').value,220)||220;$('#bi').textContent=`→  Z_base = ${(V*V/S).toFixed(2)} Ω   ·   I_base = ${(S/(Math.sqrt(3)*V)).toFixed(3)} kA`}bs();</script></body></html>
